@@ -1,0 +1,559 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "casestudy-datafactory"
+		},
+		"AzureBlobParquet_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobParquet'"
+		},
+		"AzureBlobStorageCsv_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureBlobStorageCsv'"
+		},
+		"AzureDataLakeStorage_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorage'"
+		},
+		"AzureSqlDatabase1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'AzureSqlDatabase1'"
+		},
+		"AzureDataLakeStorage_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://datalakesource.dfs.core.windows.net"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlobParquet')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureBlobParquet_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureBlobStorageCsv')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureBlobStorageCsv_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStorage')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('AzureDataLakeStorage_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDataLakeStorage_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlDatabase1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"connectionString": "[parameters('AzureSqlDatabase1_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureSqlTable1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabase1",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"table_name": {
+						"type": "string",
+						"defaultValue": "loan_details"
+					},
+					"schema": {
+						"type": "string",
+						"defaultValue": "dbo"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schema",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().table_name",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureSqlDatabase1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Json1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Json",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": "Loan2.json",
+						"fileSystem": "adlscontainer"
+					}
+				},
+				"schema": {
+					"type": "object",
+					"properties": {
+						"Unnamed: 0": {
+							"type": "string"
+						},
+						"Loan_ID": {
+							"type": "string"
+						},
+						"Gender": {
+							"type": "string"
+						},
+						"Marital": {
+							"type": "string"
+						},
+						"Dependents": {
+							"type": "string"
+						},
+						"Education": {
+							"type": "string"
+						},
+						"SelfEmplo": {
+							"type": "string"
+						},
+						"ApplIncome": {
+							"type": "string"
+						},
+						"CoApplIncome": {
+							"type": "string"
+						},
+						"Loan Amt": {
+							"type": "string"
+						},
+						"Term": {
+							"type": "string"
+						},
+						"CreditHistory": {
+							"type": "string"
+						},
+						"PropArea": {
+							"type": "string"
+						},
+						"LoanStatus": {
+							"type": "string"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Parquet1')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobParquet",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "loan_3.parquet",
+						"container": "sourcecontainer"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": [
+					{
+						"name": "Loan_ID",
+						"type": "UTF8"
+					},
+					{
+						"name": "Gender",
+						"type": "UTF8"
+					},
+					{
+						"name": "Marital",
+						"type": "UTF8"
+					},
+					{
+						"name": "Dependents",
+						"type": "UTF8"
+					},
+					{
+						"name": "Education",
+						"type": "UTF8"
+					},
+					{
+						"name": "SelfEmplo",
+						"type": "UTF8"
+					},
+					{
+						"name": "ApplIncome",
+						"type": "UTF8"
+					},
+					{
+						"name": "CoApplIncome",
+						"type": "UTF8"
+					},
+					{
+						"name": "LoanAmt",
+						"type": "UTF8"
+					},
+					{
+						"name": "Term",
+						"type": "UTF8"
+					},
+					{
+						"name": "CreditHistory",
+						"type": "UTF8"
+					},
+					{
+						"name": "PropArea",
+						"type": "UTF8"
+					},
+					{
+						"name": "LoanStatus",
+						"type": "UTF8"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobParquet')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/csvsource')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureBlobStorageCsv",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "loan_1.csv",
+						"container": "sourcecontainer"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "Unnamed: 0",
+						"type": "String"
+					},
+					{
+						"name": "Loan_ID",
+						"type": "String"
+					},
+					{
+						"name": "Gender",
+						"type": "String"
+					},
+					{
+						"name": "Marital",
+						"type": "String"
+					},
+					{
+						"name": "Dependents",
+						"type": "String"
+					},
+					{
+						"name": "Education",
+						"type": "String"
+					},
+					{
+						"name": "SelfEmplo",
+						"type": "String"
+					},
+					{
+						"name": "ApplIncome",
+						"type": "String"
+					},
+					{
+						"name": "CoApplIncome",
+						"type": "String"
+					},
+					{
+						"name": "Loan Amt",
+						"type": "String"
+					},
+					{
+						"name": "Term",
+						"type": "String"
+					},
+					{
+						"name": "CreditHistory",
+						"type": "String"
+					},
+					{
+						"name": "PropArea",
+						"type": "String"
+					},
+					{
+						"name": "LoanStatus",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureBlobStorageCsv')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "csvsource",
+								"type": "DatasetReference"
+							},
+							"name": "csvSource"
+						},
+						{
+							"dataset": {
+								"referenceName": "Parquet1",
+								"type": "DatasetReference"
+							},
+							"name": "parquetSource"
+						},
+						{
+							"dataset": {
+								"referenceName": "Json1",
+								"type": "DatasetReference"
+							},
+							"name": "jsonSource"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "AzureSqlTable1",
+								"type": "DatasetReference"
+							},
+							"name": "SqlSink"
+						}
+					],
+					"transformations": [
+						{
+							"name": "Select1"
+						},
+						{
+							"name": "Union1"
+						},
+						{
+							"name": "RemoveDuplicates"
+						},
+						{
+							"name": "Sort1"
+						}
+					],
+					"script": "source(output(\n\t\t{Unnamed: 0} as string,\n\t\tLoan_ID as string,\n\t\tGender as string,\n\t\tMarital as string,\n\t\tDependents as string,\n\t\tEducation as string,\n\t\tSelfEmplo as string,\n\t\tApplIncome as string,\n\t\tCoApplIncome as string,\n\t\t{Loan Amt} as string,\n\t\tTerm as string,\n\t\tCreditHistory as string,\n\t\tPropArea as string,\n\t\tLoanStatus as string\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> csvSource\nsource(output(\n\t\tLoan_ID as string,\n\t\tGender as string,\n\t\tMarital as string,\n\t\tDependents as string,\n\t\tEducation as string,\n\t\tSelfEmplo as string,\n\t\tApplIncome as string,\n\t\tCoApplIncome as string,\n\t\tLoanAmt as string,\n\t\tTerm as string,\n\t\tCreditHistory as string,\n\t\tPropArea as string,\n\t\tLoanStatus as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> parquetSource\nsource(output(\n\t\t{Unnamed: 0} as string,\n\t\tLoan_ID as string,\n\t\tGender as string,\n\t\tMarital as string,\n\t\tDependents as string,\n\t\tEducation as string,\n\t\tSelfEmplo as string,\n\t\tApplIncome as string,\n\t\tCoApplIncome as string,\n\t\t{Loan Amt} as string,\n\t\tTerm as string,\n\t\tCreditHistory as string,\n\t\tPropArea as string,\n\t\tLoanStatus as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tdocumentForm: 'documentPerLine') ~> jsonSource\nparquetSource select(mapColumn(\n\t\tLoan_ID,\n\t\tGender,\n\t\tMarital,\n\t\tDependents,\n\t\tEducation,\n\t\tSelfEmplo,\n\t\tApplIncome,\n\t\tCoApplIncome,\n\t\t{Loan Amt} = LoanAmt,\n\t\tTerm,\n\t\tCreditHistory,\n\t\tPropArea,\n\t\tLoanStatus\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\ncsvSource, Select1, jsonSource union(byName: true)~> Union1\nUnion1 aggregate(groupBy(Loan_ID),\n\teach(match(name!='Loan_ID'), $$ = first($$))) ~> RemoveDuplicates\nRemoveDuplicates sort(asc(Loan_ID, true)) ~> Sort1\nSort1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\trecreate:true,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> SqlSink"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/csvsource')]",
+				"[concat(variables('factoryId'), '/datasets/Parquet1')]",
+				"[concat(variables('factoryId'), '/datasets/Json1')]",
+				"[concat(variables('factoryId'), '/datasets/AzureSqlTable1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/unionpipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "csvValidation",
+						"type": "Validation",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "csvsource",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"timeout": "0.00:02:00",
+							"sleep": 10
+						}
+					},
+					{
+						"name": "parquetValidation",
+						"type": "Validation",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Parquet1",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"timeout": "0.00:02:00",
+							"sleep": 10
+						}
+					},
+					{
+						"name": "jsonValidation",
+						"type": "Validation",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "Json1",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"timeout": "0.00:02:00",
+							"sleep": 10
+						}
+					},
+					{
+						"name": "If Condition1",
+						"type": "IfCondition",
+						"dependsOn": [
+							{
+								"activity": "csvValidation",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "parquetValidation",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							},
+							{
+								"activity": "jsonValidation",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"expression": {
+								"value": "@and(\nand(activity('csvValidation').output.exists,activity('parquetValidation').output.exists),\nactivity('jsonValidation').output.exists)",
+								"type": "Expression"
+							},
+							"ifTrueActivities": [
+								{
+									"name": "dataflow1",
+									"type": "ExecuteDataFlow",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "1.00:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"dataflow": {
+											"referenceName": "dataflow1",
+											"type": "DataFlowReference",
+											"parameters": {},
+											"datasetParameters": {
+												"csvSource": {},
+												"parquetSource": {},
+												"jsonSource": {},
+												"SqlSink": {
+													"table_name": "loan_details",
+													"schema": "dbo"
+												}
+											}
+										},
+										"staging": {},
+										"compute": {
+											"coreCount": 8,
+											"computeType": "General"
+										},
+										"traceLevel": "Fine"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"annotations": [],
+				"lastPublishTime": "2021-10-17T18:14:52Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/csvsource')]",
+				"[concat(variables('factoryId'), '/datasets/Parquet1')]",
+				"[concat(variables('factoryId'), '/datasets/Json1')]",
+				"[concat(variables('factoryId'), '/dataflows/dataflow1')]"
+			]
+		}
+	]
+}
