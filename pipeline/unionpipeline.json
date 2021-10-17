@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Validation1",
+				"name": "csvValidation",
 				"type": "Validation",
 				"dependsOn": [],
 				"userProperties": [],
@@ -12,12 +12,12 @@
 						"referenceName": "csvsource",
 						"type": "DatasetReference"
 					},
-					"timeout": "7.00:00:00",
+					"timeout": "0.00:02:00",
 					"sleep": 10
 				}
 			},
 			{
-				"name": "Validation2",
+				"name": "parquetValidation",
 				"type": "Validation",
 				"dependsOn": [],
 				"userProperties": [],
@@ -26,12 +26,12 @@
 						"referenceName": "Parquet1",
 						"type": "DatasetReference"
 					},
-					"timeout": "7.00:00:00",
+					"timeout": "0.00:02:00",
 					"sleep": 10
 				}
 			},
 			{
-				"name": "Validation3",
+				"name": "jsonValidation",
 				"type": "Validation",
 				"dependsOn": [],
 				"userProperties": [],
@@ -40,7 +40,7 @@
 						"referenceName": "Json1",
 						"type": "DatasetReference"
 					},
-					"timeout": "7.00:00:00",
+					"timeout": "0.00:02:00",
 					"sleep": 10
 				}
 			},
@@ -49,19 +49,19 @@
 				"type": "IfCondition",
 				"dependsOn": [
 					{
-						"activity": "Validation1",
+						"activity": "csvValidation",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					},
 					{
-						"activity": "Validation2",
+						"activity": "parquetValidation",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					},
 					{
-						"activity": "Validation3",
+						"activity": "jsonValidation",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -70,7 +70,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@and(activity('Validation3').output.exists,and(activity('Validation1').output.exists,activity('Validation2').output.exists))\n",
+						"value": "@and(\nand(activity('csvValidation').output.exists,activity('parquetValidation').output.exists),\nactivity('jsonValidation').output.exists)",
 						"type": "Expression"
 					},
 					"ifTrueActivities": [
