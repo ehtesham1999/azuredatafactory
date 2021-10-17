@@ -1,0 +1,74 @@
+{
+	"name": "Parquet1",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureBlobParquet",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": "loan_3.parquet",
+				"container": "sourcecontainer"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "Loan_ID",
+				"type": "UTF8"
+			},
+			{
+				"name": "Gender",
+				"type": "UTF8"
+			},
+			{
+				"name": "Marital",
+				"type": "UTF8"
+			},
+			{
+				"name": "Dependents",
+				"type": "UTF8"
+			},
+			{
+				"name": "Education",
+				"type": "UTF8"
+			},
+			{
+				"name": "SelfEmplo",
+				"type": "UTF8"
+			},
+			{
+				"name": "ApplIncome",
+				"type": "UTF8"
+			},
+			{
+				"name": "CoApplIncome",
+				"type": "UTF8"
+			},
+			{
+				"name": "LoanAmt",
+				"type": "UTF8"
+			},
+			{
+				"name": "Term",
+				"type": "UTF8"
+			},
+			{
+				"name": "CreditHistory",
+				"type": "UTF8"
+			},
+			{
+				"name": "PropArea",
+				"type": "UTF8"
+			},
+			{
+				"name": "LoanStatus",
+				"type": "UTF8"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

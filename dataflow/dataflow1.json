@@ -1,0 +1,55 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "csvsource",
+						"type": "DatasetReference"
+					},
+					"name": "csvSource"
+				},
+				{
+					"dataset": {
+						"referenceName": "Parquet1",
+						"type": "DatasetReference"
+					},
+					"name": "parquetSource"
+				},
+				{
+					"dataset": {
+						"referenceName": "Json1",
+						"type": "DatasetReference"
+					},
+					"name": "jsonSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					},
+					"name": "SqlSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Select1"
+				},
+				{
+					"name": "Union1"
+				},
+				{
+					"name": "RemoveDuplicates"
+				},
+				{
+					"name": "Sort1"
+				}
+			],
+			"script": "source(output(\n\t\t{Unnamed: 0} as string,\n\t\tLoan_ID as string,\n\t\tGender as string,\n\t\tMarital as string,\n\t\tDependents as string,\n\t\tEducation as string,\n\t\tSelfEmplo as string,\n\t\tApplIncome as string,\n\t\tCoApplIncome as string,\n\t\t{Loan Amt} as string,\n\t\tTerm as string,\n\t\tCreditHistory as string,\n\t\tPropArea as string,\n\t\tLoanStatus as string\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false) ~> csvSource\nsource(output(\n\t\tLoan_ID as string,\n\t\tGender as string,\n\t\tMarital as string,\n\t\tDependents as string,\n\t\tEducation as string,\n\t\tSelfEmplo as string,\n\t\tApplIncome as string,\n\t\tCoApplIncome as string,\n\t\tLoanAmt as string,\n\t\tTerm as string,\n\t\tCreditHistory as string,\n\t\tPropArea as string,\n\t\tLoanStatus as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet') ~> parquetSource\nsource(output(\n\t\t{Unnamed: 0} as string,\n\t\tLoan_ID as string,\n\t\tGender as string,\n\t\tMarital as string,\n\t\tDependents as string,\n\t\tEducation as string,\n\t\tSelfEmplo as string,\n\t\tApplIncome as string,\n\t\tCoApplIncome as string,\n\t\t{Loan Amt} as string,\n\t\tTerm as string,\n\t\tCreditHistory as string,\n\t\tPropArea as string,\n\t\tLoanStatus as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tdocumentForm: 'documentPerLine') ~> jsonSource\nparquetSource select(mapColumn(\n\t\tLoan_ID,\n\t\tGender,\n\t\tMarital,\n\t\tDependents,\n\t\tEducation,\n\t\tSelfEmplo,\n\t\tApplIncome,\n\t\tCoApplIncome,\n\t\t{Loan Amt} = LoanAmt,\n\t\tTerm,\n\t\tCreditHistory,\n\t\tPropArea,\n\t\tLoanStatus\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> Select1\ncsvSource, Select1, jsonSource union(byName: true)~> Union1\nUnion1 aggregate(groupBy(Loan_ID),\n\teach(match(name!='Loan_ID'), $$ = first($$))) ~> RemoveDuplicates\nRemoveDuplicates sort(asc(Loan_ID, true)) ~> Sort1\nSort1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\trecreate:true,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> SqlSink"
+		}
+	}
+}
