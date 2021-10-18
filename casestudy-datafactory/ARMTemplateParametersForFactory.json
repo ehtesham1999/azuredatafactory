@@ -17,8 +17,20 @@
 		"AzureSqlDatabase1_connectionString": {
 			"value": ""
 		},
+		"BlobLinkedService_connectionString": {
+			"value": ""
+		},
+		"DatalakeLinkedService_connectionString": {
+			"value": ""
+		},
+		"BlobLinkedService1_accountKey": {
+			"value": ""
+		},
 		"AzureDataLakeStorage_properties_typeProperties_url": {
 			"value": "https://datalakesource.dfs.core.windows.net"
+		},
+		"BlobLinkedService1_properties_typeProperties_url": {
+			"value": "https://blobsource1.dfs.core.windows.net"
 		}
 	}
 }
