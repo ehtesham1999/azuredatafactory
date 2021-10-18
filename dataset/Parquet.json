@@ -1,8 +1,8 @@
 {
-	"name": "Parquet1",
+	"name": "Parquet",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "AzureBlobParquet",
+			"referenceName": "DatalakeLinkedService",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
@@ -11,7 +11,7 @@
 			"location": {
 				"type": "AzureBlobStorageLocation",
 				"fileName": "loan_3.parquet",
-				"container": "sourcecontainer"
+				"container": "source-datalake-container"
 			},
 			"compressionCodec": "snappy"
 		},
