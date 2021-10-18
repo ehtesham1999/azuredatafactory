@@ -45,7 +45,7 @@
 				}
 			},
 			{
-				"name": "If Condition1",
+				"name": "if all 3 validated",
 				"type": "IfCondition",
 				"dependsOn": [
 					{
@@ -106,6 +106,156 @@
 						}
 					]
 				}
+			},
+			{
+				"name": "If csv failed",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "csvValidation",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "jsonValidation",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "parquetValidation",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": []
+			},
+			{
+				"name": "if json failed",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "jsonValidation",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "csvValidation",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "parquetValidation",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": []
+			},
+			{
+				"name": "if parquet failed",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "parquetValidation",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "jsonValidation",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "csvValidation",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": []
+			},
+			{
+				"name": "if only csv validtaed",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "csvValidation",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "jsonValidation",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "parquetValidation",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": []
+			},
+			{
+				"name": "if only json validated",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "jsonValidation",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "csvValidation",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "parquetValidation",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": []
+			},
+			{
+				"name": "If only parquet validated",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "parquetValidation",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "jsonValidation",
+						"dependencyConditions": [
+							"Failed"
+						]
+					},
+					{
+						"activity": "csvValidation",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"userProperties": []
 			}
 		],
 		"annotations": [],
