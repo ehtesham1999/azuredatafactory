@@ -20,10 +20,10 @@
 		"BlobLinkedService_connectionString": {
 			"value": ""
 		},
-		"DatalakeLinkedService_connectionString": {
+		"BlobLinkedService1_accountKey": {
 			"value": ""
 		},
-		"BlobLinkedService1_accountKey": {
+		"DatalakeLinkedService_connectionString": {
 			"value": ""
 		},
 		"AzureDataLakeStorage_properties_typeProperties_url": {

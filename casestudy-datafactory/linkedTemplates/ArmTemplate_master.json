@@ -27,13 +27,13 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'connectionString' of 'BlobLinkedService'"
 		},
-		"DatalakeLinkedService_connectionString": {
-			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'DatalakeLinkedService'"
-		},
 		"BlobLinkedService1_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'BlobLinkedService1'"
+		},
+		"DatalakeLinkedService_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'DatalakeLinkedService'"
 		},
 		"AzureDataLakeStorage_properties_typeProperties_url": {
 			"type": "string",
@@ -85,11 +85,11 @@
 					"BlobLinkedService_connectionString": {
 						"value": "[parameters('BlobLinkedService_connectionString')]"
 					},
-					"DatalakeLinkedService_connectionString": {
-						"value": "[parameters('DatalakeLinkedService_connectionString')]"
-					},
 					"BlobLinkedService1_accountKey": {
 						"value": "[parameters('BlobLinkedService1_accountKey')]"
+					},
+					"DatalakeLinkedService_connectionString": {
+						"value": "[parameters('DatalakeLinkedService_connectionString')]"
 					},
 					"AzureDataLakeStorage_properties_typeProperties_url": {
 						"value": "[parameters('AzureDataLakeStorage_properties_typeProperties_url')]"
