@@ -1,0 +1,169 @@
+{
+	"name": "Incremental copy Pipeline",
+	"properties": {
+		"activities": [
+			{
+				"name": "LookupOldWaterMark",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSqlTableOldwatermark",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "LookupNewWaterMark",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select MAX(LastModifytime) as NewWatermarkvalue from data_source_table",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "SourceDataAzureSqlTable",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "IncrementalCopyActivity",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "LookupOldWaterMark",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "LookupNewWaterMark",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select * from data_source_table where LastModifytime > '@{activity('LookupOldWaterMark').output.firstRow.WatermarkValue}' and LastModifytime <= '@{activity('LookupNewWaterMark').output.firstRow.NewWatermarkvalue}'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SourceDataAzureSqlTable",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "SinkIncrementalData",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "StoredProceduretoWriteWatermark",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "IncrementalCopyActivity",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "[dbo].[usp_write_watermark]",
+					"storedProcedureParameters": {
+						"LastModifiedtime": {
+							"value": {
+								"value": "@{activity('LookupNewWaterMark').output.firstRow.NewWatermarkvalue}",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						},
+						"TableName": {
+							"value": {
+								"value": "@{activity('LookupOldWaterMark').output.firstRow.TableName}",
+								"type": "Expression"
+							},
+							"type": "String"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "AzureSqlDatabaseIncrementalLoad",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"annotations": []
+	}
+}

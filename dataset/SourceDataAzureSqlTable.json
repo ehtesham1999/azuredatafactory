@@ -1,0 +1,12 @@
+{
+	"name": "SourceDataAzureSqlTable",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabaseIncrementalLoad",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	}
+}
