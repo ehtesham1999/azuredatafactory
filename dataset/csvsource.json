@@ -5,6 +5,9 @@
 			"referenceName": "DatalakeLinkedService",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "Case study pipeline"
+		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {

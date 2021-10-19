@@ -165,6 +165,9 @@
 				}
 			}
 		],
+		"folder": {
+			"name": "Incremental copy pipelines"
+		},
 		"annotations": []
 	}
 }

@@ -1,6 +1,9 @@
 {
 	"name": "dataflow",
 	"properties": {
+		"folder": {
+			"name": "case study dataflows"
+		},
 		"type": "MappingDataFlow",
 		"typeProperties": {
 			"sources": [

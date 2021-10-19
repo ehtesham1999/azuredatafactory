@@ -258,6 +258,9 @@
 				"userProperties": []
 			}
 		],
+		"folder": {
+			"name": "case study pipelines"
+		},
 		"annotations": [],
 		"lastPublishTime": "2021-10-17T18:14:52Z"
 	}

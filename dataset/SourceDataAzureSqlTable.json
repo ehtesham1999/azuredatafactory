@@ -5,6 +5,9 @@
 			"referenceName": "AzureSqlDatabaseIncrementalLoad",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "Incremental Copy datasets"
+		},
 		"annotations": [],
 		"type": "AzureSqlTable",
 		"schema": []

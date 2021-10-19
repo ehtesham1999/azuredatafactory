@@ -5,6 +5,9 @@
 			"referenceName": "BlobLinkedService",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "Case study pipeline"
+		},
 		"annotations": [],
 		"type": "Json",
 		"typeProperties": {

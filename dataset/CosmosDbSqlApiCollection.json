@@ -5,6 +5,9 @@
 			"referenceName": "CosmosDb1",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "Case study pipeline"
+		},
 		"annotations": [],
 		"type": "CosmosDbSqlApiCollection",
 		"schema": {

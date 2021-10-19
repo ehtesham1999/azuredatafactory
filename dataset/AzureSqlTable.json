@@ -15,6 +15,9 @@
 				"defaultValue": "dbo"
 			}
 		},
+		"folder": {
+			"name": "Case study pipeline"
+		},
 		"annotations": [],
 		"type": "AzureSqlTable",
 		"schema": [],
