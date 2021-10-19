@@ -1,0 +1,61 @@
+{
+	"name": "CosmosDbSqlApiCollection",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "CosmosDb1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "CosmosDbSqlApiCollection",
+		"schema": {
+			"type": "object",
+			"properties": {
+				"Unnamed: 0": {
+					"type": "string"
+				},
+				"Loan_ID": {
+					"type": "string"
+				},
+				"Gender": {
+					"type": "string"
+				},
+				"Marital": {
+					"type": "string"
+				},
+				"Dependents": {
+					"type": "string"
+				},
+				"Education": {
+					"type": "string"
+				},
+				"SelfEmplo": {
+					"type": "string"
+				},
+				"ApplIncome": {
+					"type": "string"
+				},
+				"CoApplIncome": {
+					"type": "string"
+				},
+				"Loan Amt": {
+					"type": "string"
+				},
+				"Term": {
+					"type": "string"
+				},
+				"CreditHistory": {
+					"type": "string"
+				},
+				"PropArea": {
+					"type": "string"
+				},
+				"LoanStatus": {
+					"type": "string"
+				}
+			}
+		},
+		"typeProperties": {
+			"collectionName": "loans"
+		}
+	}
+}
