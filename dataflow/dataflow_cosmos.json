@@ -1,0 +1,64 @@
+{
+	"name": "dataflow_cosmos",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "csvsource",
+						"type": "DatasetReference"
+					},
+					"name": "csvSource"
+				},
+				{
+					"dataset": {
+						"referenceName": "Parquet",
+						"type": "DatasetReference"
+					},
+					"name": "parquetSource"
+				},
+				{
+					"dataset": {
+						"referenceName": "Json",
+						"type": "DatasetReference"
+					},
+					"name": "jsonSource"
+				},
+				{
+					"name": "cosmosSource"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "AzureSqlTable",
+						"type": "DatasetReference"
+					},
+					"name": "SqlSink"
+				}
+			],
+			"transformations": [
+				{
+					"name": "parquetSelect"
+				},
+				{
+					"name": "Union"
+				},
+				{
+					"name": "RemoveDuplicates"
+				},
+				{
+					"name": "Sort1"
+				},
+				{
+					"name": "jsonSelect"
+				},
+				{
+					"name": "csvSelect"
+				}
+			],
+			"script": "source(output(\n\t\t{Unnamed: 0} as string,\n\t\tLoan_ID as string,\n\t\tGender as string,\n\t\tMarital as string,\n\t\tDependents as string,\n\t\tEducation as string,\n\t\tSelfEmplo as string,\n\t\tApplIncome as string,\n\t\tCoApplIncome as string,\n\t\t{Loan Amt} as string,\n\t\tTerm as string,\n\t\tCreditHistory as string,\n\t\tPropArea as string,\n\t\tLoanStatus as string\n\t),\n\tallowSchemaDrift: false,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tpartitionBy('hash', 1)) ~> csvSource\nsource(output(\n\t\tLoan_ID as string,\n\t\tGender as string,\n\t\tMarital as string,\n\t\tDependents as string,\n\t\tEducation as string,\n\t\tSelfEmplo as string,\n\t\tApplIncome as string,\n\t\tCoApplIncome as string,\n\t\tLoanAmt as string,\n\t\tTerm as string,\n\t\tCreditHistory as string,\n\t\tPropArea as string,\n\t\tLoanStatus as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tformat: 'parquet',\n\tpartitionBy('hash', 1)) ~> parquetSource\nsource(output(\n\t\t{Unnamed: 0} as string,\n\t\tLoan_ID as string,\n\t\tGender as string,\n\t\tMarital as string,\n\t\tDependents as string,\n\t\tEducation as string,\n\t\tSelfEmplo as string,\n\t\tApplIncome as string,\n\t\tCoApplIncome as string,\n\t\t{Loan Amt} as string,\n\t\tTerm as string,\n\t\tCreditHistory as string,\n\t\tPropArea as string,\n\t\tLoanStatus as string\n\t),\n\tallowSchemaDrift: true,\n\tvalidateSchema: false,\n\tignoreNoFilesFound: false,\n\tdocumentForm: 'documentPerLine',\n\tpartitionBy('hash', 1)) ~> jsonSource\nsource(allowSchemaDrift: true,\n\tvalidateSchema: false) ~> cosmosSource\nparquetSource select(mapColumn(\n\t\tLoan_ID,\n\t\tGender,\n\t\tMarital,\n\t\tDependents,\n\t\tEducation,\n\t\tSelfEmplo,\n\t\tApplIncome,\n\t\tCoApplIncome,\n\t\t{Loan Amt} = LoanAmt,\n\t\tTerm,\n\t\tCreditHistory,\n\t\tPropArea,\n\t\tLoanStatus\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> parquetSelect\ncsvSelect, parquetSelect, jsonSelect union(byName: true)~> Union\nUnion aggregate(groupBy(Loan_ID),\n\teach(match(name!='Loan_ID'), $$ = first($$))) ~> RemoveDuplicates\nRemoveDuplicates sort(asc(Loan_ID, true)) ~> Sort1\njsonSource select(mapColumn(\n\t\tLoan_ID,\n\t\tGender,\n\t\tMarital,\n\t\tDependents,\n\t\tEducation,\n\t\tSelfEmplo,\n\t\tApplIncome,\n\t\tCoApplIncome,\n\t\t{Loan Amt},\n\t\tTerm,\n\t\tCreditHistory,\n\t\tPropArea,\n\t\tLoanStatus\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> jsonSelect\ncsvSource select(mapColumn(\n\t\tLoan_ID,\n\t\tGender,\n\t\tMarital,\n\t\tDependents,\n\t\tEducation,\n\t\tSelfEmplo,\n\t\tApplIncome,\n\t\tCoApplIncome,\n\t\t{Loan Amt},\n\t\tTerm,\n\t\tCreditHistory,\n\t\tPropArea,\n\t\tLoanStatus\n\t),\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true) ~> csvSelect\nSort1 sink(allowSchemaDrift: true,\n\tvalidateSchema: false,\n\tdeletable:false,\n\tinsertable:true,\n\tupdateable:false,\n\tupsertable:false,\n\ttruncate:true,\n\tformat: 'table',\n\tskipDuplicateMapInputs: true,\n\tskipDuplicateMapOutputs: true,\n\terrorHandlingOption: 'stopOnFirstError') ~> SqlSink"
+		}
+	}
+}
